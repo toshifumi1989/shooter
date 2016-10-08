@@ -84,14 +84,14 @@ function Enemy(canvas) {
         x = canvas.width*Math.random();
         y = -er;
         vx = 0;
-        vy = 20*Math.random()*stageCount + 50;
+        vy = 100*Math.random() + 50;
     };
     spawn();
 
     var lifeProp = [];
     //lifeProp[3] = { color: 'white',  fireP: 0.001, numB:  4, daze: 0 };
-    lifeProp[2] = { color: 'white',  fireP: 0.001, daze: (stageCount-1)*2 };    //yellow
-    lifeProp[1] = { color: 'red',    fireP: 0.001, daze: (stageCount-1)*2 };    //red
+    lifeProp[2] = { color: 'white',  fireP: 0.001, daze: 0 };    //yellow
+    lifeProp[1] = { color: 'red',    fireP: 0.001, daze: stageCount * 1 };    //red
 
 
     this.draw = function(ctx) {
@@ -116,7 +116,7 @@ function Enemy(canvas) {
     };
 
     this.fire = function() {
-        var n = (stageCount)*2+1;    //ìGÇÃíeÇÃêî
+        var n = 1+(stageCount*2-1);    //ìGÇÃíeÇÃêî
         for (var i = 0; i < n; i++) {
             var th = i*2*Math.PI/n;
             var vx = 300*Math.cos(th);
@@ -175,7 +175,7 @@ function Enemy(canvas) {
             //x += dt*vx/1000;
             x += lifeProp[life].daze*Math.cos(th);
             th += 1.5*dt*2*Math.PI/1000;
-            y += dt*vy/1000;
+            y += dt*vy/1000*stageCount;
             if (x < -er
             || canvas.width + er < x
             || canvas.height + er < y) {
@@ -354,8 +354,8 @@ window.onload = function() {
             if (keys[37 /*Left */]) { myX -= 3; }
             if (keys[38 /*Up   */]) { myY -= 3; }
             if (keys[40 /*Down */]) { myY += 3; }
-            if (keys[90 /* z */]) {
-                if (lastShoot == undefined || 100 < tick - lastShoot) {
+            if (keys[88 /* x */]) {
+                if (lastShoot == undefined || 200 < tick - lastShoot) {
                     var bulletNotInUse = bullets.filter(function(bullet) {
                         return !bullet.inUse;
                     });
@@ -370,6 +370,26 @@ window.onload = function() {
                     bullet.y = myY;
                     bullet.v = -4;
                     bullet.inUse = true;
+                    playSE(shotAudio);
+                    lastShoot = tick;
+                }
+            }
+            if(keys[90 /* z */]){
+                if (lastShoot == undefined || 200 < tick - lastShoot) {
+                    var bulletLeftNotInUse = bullets.filter(function(bullet) {
+                        return !bullet.inUse;
+                    });
+                    var bulletLeft;
+                    if (0 < bulletLeftNotInUse.length) {
+                        bulletLeft = bulletLeftNotInUse[0];
+                    } else {
+                        bulletLeft = {};
+                        bulletLeft.push(bullet);
+                    }
+                    bulletLeft.x = myX;
+                    bulletLeft.y = myY;
+                    bulletLeft.v = -4;
+                    bulletLeft.inUse = true;
                     playSE(shotAudio);
                     lastShoot = tick;
                 }
