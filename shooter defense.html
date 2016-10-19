@@ -71,7 +71,7 @@ function Enemy(canvas) {
     var x, y;
     var vx, vy;
 
-    var life = 2;
+    var life = 1;
     var dying = false;
     var explode = new Explode();
 
@@ -91,7 +91,7 @@ function Enemy(canvas) {
     var lifeProp = [];
     //lifeProp[3] = { color: 'white',  fireP: 0.001, numB:  4, daze: 0 };
     lifeProp[2] = { color: 'white',  fireP: 0.001, daze: 0 };    //yellow
-    lifeProp[1] = { color: 'red',    fireP: 0.001, daze: stageCount * 1 };    //red
+    lifeProp[1] = { color: 'red',    fireP: 0.1, daze: stageCount * 1 };    //red
 
 
     this.draw = function(ctx) {
@@ -116,7 +116,7 @@ function Enemy(canvas) {
     };
 
     this.fire = function() {
-        var n = 1+(stageCount*2-1);    //ìGÇÃíeÇÃêî
+        var n = 2+stageCount;    //ìGÇÃíeÇÃêî
         for (var i = 0; i < n; i++) {
             var th = i*2*Math.PI/n;
             var vx = 300*Math.cos(th);
@@ -175,12 +175,19 @@ function Enemy(canvas) {
             //x += dt*vx/1000;
             x += lifeProp[life].daze*Math.cos(th);
             th += 1.5*dt*2*Math.PI/1000;
-            y += dt*vy/1000*stageCount;
+            y += dt*vy/10000*stageCount;
+            //console.log(dt*vy/10000*stageCount);
+
+            /*ÉLÉÉÉìÉoÉXÇÃäOÇ…Ç≈ÇΩÇÁèâä˙âª
             if (x < -er
             || canvas.width + er < x
             || canvas.height + er < y) {
                 spawn();
-            }
+            }*/
+
+            //âÊñ äOÇ…èoÇ»Ç¢ÇÊÇ§
+            if( x < -er ) x = -er;
+            if( canvas.width + er < x ) x = canvas.width + er;
         }
         bullets.forEach(function(bullet) {
             bullet.x += dt*bullet.vx/1000;
@@ -295,7 +302,7 @@ window.onload = function() {
         switch (status) {
         case Status.title:
             msg = 'Press space to start';
-            numEnemies = 1;
+            numEnemies = 3;
             stageCount = 1;
             break;
         case Status.toStart:
@@ -354,6 +361,51 @@ window.onload = function() {
             if (keys[37 /*Left */]) { myX -= 3; }
             if (keys[38 /*Up   */]) { myY -= 3; }
             if (keys[40 /*Down */]) { myY += 3; }
+            //ç∂éŒÇﬂ
+            if(keys[90 /* z */] && keys[88 /* x */]) {
+                if (lastShoot == undefined || 200 < tick - lastShoot) {
+                    var bulletNotInUse = bullets.filter(function(bullet) {
+                        return !bullet.inUse;
+                    });
+                    var bullet;
+                    if (0 < bulletNotInUse.length) {
+                        bullet = bulletNotInUse[0];
+                    } else {
+                        bullet = {};
+                        bullets.push(bullet);
+                    }
+                    bullet.x = myX;
+                    bullet.y = myY;
+                    bullet.vx = -4;
+                    bullet.vy = -4;
+                    bullet.inUse = true;
+                    playSE(shotAudio);
+                    lastShoot = tick;
+                }
+            }
+            //âEéŒÇﬂ
+            if(keys[67 /* c */] && keys[88 /* x */]) {
+                if (lastShoot == undefined || 200 < tick - lastShoot) {
+                    var bulletNotInUse = bullets.filter(function(bullet) {
+                        return !bullet.inUse;
+                    });
+                    var bullet;
+                    if (0 < bulletNotInUse.length) {
+                        bullet = bulletNotInUse[0];
+                    } else {
+                        bullet = {};
+                        bullets.push(bullet);
+                    }
+                    bullet.x = myX;
+                    bullet.y = myY;
+                    bullet.vx = 4;
+                    bullet.vy = -4;
+                    bullet.inUse = true;
+                    playSE(shotAudio);
+                    lastShoot = tick;
+                }
+            }
+            //íºê¸
             if (keys[88 /* x */]) {
                 if (lastShoot == undefined || 200 < tick - lastShoot) {
                     var bulletNotInUse = bullets.filter(function(bullet) {
@@ -368,28 +420,53 @@ window.onload = function() {
                     }
                     bullet.x = myX;
                     bullet.y = myY;
-                    bullet.v = -4;
+                    bullet.vx = 0;
+                    bullet.vy = -4;
                     bullet.inUse = true;
                     playSE(shotAudio);
                     lastShoot = tick;
                 }
             }
+            //ç∂åÇÇø
             if(keys[90 /* z */]){
                 if (lastShoot == undefined || 200 < tick - lastShoot) {
-                    var bulletLeftNotInUse = bullets.filter(function(bullet) {
+                    var bulletNotInUse = bullets.filter(function(bullet) {
                         return !bullet.inUse;
                     });
-                    var bulletLeft;
-                    if (0 < bulletLeftNotInUse.length) {
-                        bulletLeft = bulletLeftNotInUse[0];
+                    var bullet;
+                    if (0 < bulletNotInUse.length) {
+                        bullet = bulletNotInUse[0];
                     } else {
-                        bulletLeft = {};
-                        bulletLeft.push(bullet);
+                        bullet = {};
+                        bullets.push(bullet);
                     }
-                    bulletLeft.x = myX;
-                    bulletLeft.y = myY;
-                    bulletLeft.v = -4;
-                    bulletLeft.inUse = true;
+                    bullet.x = myX;
+                    bullet.y = myY;
+                    bullet.vx = -4;
+                    bullet.vy = 0;
+                    bullet.inUse = true;
+                    playSE(shotAudio);
+                    lastShoot = tick;
+                }
+            }
+            //âEåÇÇø
+            if(keys[67 /* c */]){
+                if (lastShoot == undefined || 200 < tick - lastShoot) {
+                    var bulletNotInUse = bullets.filter(function(bullet) {
+                        return !bullet.inUse;
+                    });
+                    var bullet;
+                    if (0 < bulletNotInUse.length) {
+                        bullet = bulletNotInUse[0];
+                    } else {
+                        bullet = {};
+                        bullets.push(bullet);
+                    }
+                    bullet.x = myX;
+                    bullet.y = myY;
+                    bullet.vx = 4;
+                    bullet.vy = 0;
+                    bullet.inUse = true;
                     playSE(shotAudio);
                     lastShoot = tick;
                 }
@@ -404,13 +481,22 @@ window.onload = function() {
                 enemy.fireAtRandom();
             }
             enemy.draw(ctx);
+
             if (status != Status.inGame) return;
+            //éÄñSîªíË
             if ((enemy.isAlive() && enemy.hit(myX, myY, myR))
             || enemy.bulletsHit(myX, myY, myR)) {
                 explode.reset();
                 status = Status.dying;
                 playSE(deadAudio);
             }
+            if(canvas.height < enemy.y) {
+                console.log("canvas :"+ canvas.height);
+                console.log("enemy : "+ enemy.y);
+                status = Status.gameOver;
+            }
+            console.log("canvas : "+ canvas.height);
+            console.log("enemy : "+ enemy.y);
         });
 
         if (drawPlayer) {
@@ -441,8 +527,10 @@ window.onload = function() {
                     bullet.inUse = false;
                 }
             });
-            bullet.y += bullet.v;
-            if (bullet.y < 0) {
+            bullet.x += bullet.vx;
+            bullet.y += bullet.vy;
+            if (bullet.x < 0 || bullet > canvas.width ||
+                bullet.y < 0 || bullet > canvas.height ) {
                 bullet.inUse = false;
             }
         });
@@ -454,7 +542,7 @@ window.onload = function() {
             if (status == Status.inGame && remainingEnemies <= 0) {
                 status = Status.gameClear;
                 muteSE = true;
-                numEnemies*=2;
+                numEnemies+=stageCount;
                 stageCount++;
             }
             ctx.font = '20pt Calibri';
@@ -463,7 +551,7 @@ window.onload = function() {
             ctx.textBaseline = 'top';
             var s = "enemie(s): " + remainingEnemies;
             ctx.fillText(s, canvas.width - 10, 0);
-            var stage = "stage: " + stageCount;
+            var stage = "wave: " + stageCount;
             ctx.fillText(stage,canvas.width - 400 , 0);
         }
 
