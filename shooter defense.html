@@ -91,7 +91,7 @@ function Enemy(canvas) {
     var lifeProp = [];
     //lifeProp[3] = { color: 'white',  fireP: 0.001, numB:  4, daze: 0 };
     lifeProp[2] = { color: 'white',  fireP: 0.001, daze: 0 };    //yellow
-    lifeProp[1] = { color: 'red',    fireP: 0.1, daze: stageCount * 1 };    //red
+    lifeProp[1] = { color: 'red',    fireP: 0.01, daze: stageCount * 1 };    //red
 
 
     this.draw = function(ctx) {
@@ -121,7 +121,8 @@ function Enemy(canvas) {
             var th = i*2*Math.PI/n;
             var vx = 300*Math.cos(th);
             var vy = 300*Math.sin(th);
-            var bullet = { x: x, y: y, vx: vx, vy: vy, life: 1 };
+            var inUse = true;
+            var bullet = { x: x, y: y, vx: vx, vy: vy, life: 1 ,inUse: inUse };
             bullets.push(bullet);
         }
         playSE(enemyShotAudio);
@@ -144,6 +145,13 @@ function Enemy(canvas) {
         return false;
     };
 
+    this.castleHit = function() {
+        if(y > 450) {
+            return true;
+            //console.log("çUåÇÇéÛÇØÇΩ");
+        }
+    }
+
     this.bulletsHit = function(tx, ty, r) {
         for (var i = 0; i < bullets.length; i++) {
             var bullet = bullets[i];
@@ -155,6 +163,18 @@ function Enemy(canvas) {
         }
         return false;
     };
+
+    this.bulletsCastleHit = function(){
+        bullets.forEach(function(bullet){
+            if(!bullet.inUse) return;
+
+            if(bullet.y > 450) {
+                bullet.inUse = false;
+                return true;
+                //console.log("çUåÇÇéÛÇØÇΩ");
+            }
+        });
+    }
 
     var lastTick;
     var th = Math.PI*Math.random();
@@ -241,6 +261,7 @@ window.onload = function() {
                    inGame:3, gameClear:4, dying:5, gameOver:6 };
     var status = Status.title;
 
+    var castleLife;
     var count;
     var myX, myY;
     var bullets, lastShoot;
@@ -296,12 +317,14 @@ window.onload = function() {
 
         var msg;
         var drawEnemies = false;
+        var drawCastle = false;
         var drawPlayer = false;
         var drawStatus = false;
 
         switch (status) {
         case Status.title:
             msg = 'Press space to start';
+            castleLife = 5;
             numEnemies = 3;
             stageCount = 1;
             break;
@@ -324,11 +347,13 @@ window.onload = function() {
             //break; // intentionally fall through
         case Status.countDown:
             msg = "" + count;
+            drawCastle = true;
             drawPlayer = true;
             drawStatus = true;
             break;
         case Status.inGame:
             drawEnemies = true;
+            drawCastle = true;
             drawPlayer = true;
             drawStatus = true;
             break;
@@ -490,15 +515,20 @@ window.onload = function() {
                 status = Status.dying;
                 playSE(deadAudio);
             }
-            if(canvas.height < enemy.y) {
-                console.log("canvas :"+ canvas.height);
-                console.log("enemy : "+ enemy.y);
-                status = Status.gameOver;
+            if(enemy.castleHit() || enemy.bulletsCastleHit()){
+                castleLife--;
+                console.log("çUåÇÇéÛÇØÇΩ");
             }
-            console.log("canvas : "+ canvas.height);
-            console.log("enemy : "+ enemy.y);
         });
 
+        if(drawCastle) {
+            ctx.beginPath();
+            ctx.fillStyle = 'blue';
+            ctx.fillRect(0,450,w,50);
+            if(castleLife <= 0){
+                status = Status.dying;
+            }
+        }
         if (drawPlayer) {
             ctx.beginPath();
             ctx.fillStyle = 'green';
@@ -553,6 +583,8 @@ window.onload = function() {
             ctx.fillText(s, canvas.width - 10, 0);
             var stage = "wave: " + stageCount;
             ctx.fillText(stage,canvas.width - 400 , 0);
+            var casLife = "Life: " + castleLife;
+            ctx.fillText(casLife,270 , 460);
         }
 
         if (msg) {
