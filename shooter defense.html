@@ -147,8 +147,9 @@ function Enemy(canvas) {
 
     this.castleHit = function() {
         if(y > 450) {
+            console.log("攻撃を受けた");
+            spawn();
             return true;
-            //console.log("攻撃を受けた");
         }
     }
 
@@ -193,9 +194,16 @@ function Enemy(canvas) {
         var dt = tick - lastTick;
         if (0 < life) {
             //x += dt*vx/1000;
+//            x += lifeProp[life].daze*Math.cos(th);
+//            th += 1.5*dt*2*Math.PI/1000;
+//            y += dt*vy/10000*stageCount;
+
+// masuo
             x += lifeProp[life].daze*Math.cos(th);
             th += 1.5*dt*2*Math.PI/1000;
-            y += dt*vy/10000*stageCount;
+            y += dt*vy/2500*stageCount;
+//
+
             //console.log(dt*vy/10000*stageCount);
 
             /*キャンバスの外にでたら初期化
